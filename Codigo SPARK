@@ -1,1 +1,174 @@
-Wa
+ALUMNO: RODRIGUEZ DE LA CRUZ CHRISTIAN LEONARDO
+TRANSFORMACIONES:
+1. map: 
+rdd = sc.parallelize([10, 15, 20, 25, 30])
+rdd_transformado = rdd.map(lambda x: (x + 5, (x + 5) ** 2))
+print(rdd_transformado.collect())
+
+2. filter: 
+rdd = sc.parallelize([11, 22, 33, 44, 55, 66, 77, 88])
+rdd_filtrado = rdd.filter(lambda x: x > 30 and x % 11 == 0)
+print(rdd_filtrado.collect())
+
+3. flatMap:
+rdd = sc.parallelize(["Big data analysis", "Learning PySpark", "Spark is fun"])
+rdd_palabras = rdd.flatMap(lambda frase: [palabra for palabra in frase.split(" ") if len(palabra) >= 5])
+print(rdd_palabras.collect())
+
+4. unión:
+rdd_animales_domesticos = sc.parallelize(["Perro", "Gato", "Conejo"])
+rdd_animales_salvajes = sc.parallelize(["Tigre", "Elefante", "León"])
+rdd_union = rdd_animales_domesticos.union(rdd_animales_salvajes).map(lambda x: x.upper())
+print(rdd_union.collect())
+
+5. intersection:
+rdd_a = sc.parallelize(["Fútbol", "Baloncesto", "Tenis", "Voleibol"])
+rdd_b = sc.parallelize(["Voleibol", "Natación", "Tenis", "Boxeo"])
+rdd_interseccion = rdd_a.intersection(rdd_b).map(lambda x: x.lower())
+print(rdd_interseccion.collect())
+
+6. distinc:
+rdd = sc.parallelize(["rojo", "azul", "verde", "rojo", "amarillo", "azul", "negro", "verde"])
+rdd_colores_unicos = rdd.distinct().sortBy(lambda x: x)
+print(rdd_colores_unicos.collect())
+
+7. groupByKey:
+rdd = sc.parallelize([
+    ("fresa", 4),
+    ("fresa", 2),
+    ("pera", 5),
+    ("fresa", 1),
+    ("pera", 3),
+    ("sandía", 12)
+])
+rdd_grouped = rdd.groupByKey()
+resultado = rdd_grouped.mapValues(lambda x: sum(x) if sum(x) > 10 else 0).filter(lambda x: x[1] > 0).collect()
+for fruta, total in resultado:
+    print(f"{fruta}: {total}")
+
+8. reduceByKey:
+rdd = sc.parallelize([
+    ("manzana", 2),
+    ("kiwi", 6),
+    ("uva", 3),
+    ("kiwi", 4),
+    ("manzana", 1),
+    ("plátano", 8)
+])
+rdd_sumado = rdd.reduceByKey(lambda x, y: x + y)
+rdd_normalizado = rdd_sumado.mapValues(lambda x: x / 100.0).collect()
+for fruta, total in rdd_normalizado:
+    print(f"{fruta}: {total:.2f}")
+
+9. sortByKey:
+rdd = sc.parallelize([
+    (6, "manzana"),
+    (2, "pera"),
+    (9, "sandía"),
+    (3, "kiwi")
+])
+rdd_transformado = rdd.sortByKey().mapValues(lambda x: x.upper())
+resultado = rdd_transformado.collect()
+for clave, valor in resultado:
+    print(f"{clave}: {valor}")
+
+10. join:
+rdd_productos = sc.parallelize([
+    (101, "smartphone"),
+    (102, "laptop"),
+    (103, "tablet")
+])
+rdd_precios = sc.parallelize([
+    (101, 699.99),
+    (102, 999.99),
+    (103, 399.99),
+    (104, 49.99)
+])
+rdd_join = rdd_productos.join(rdd_precios).union(rdd_productos.subtractByKey(rdd_precios))
+resultado = rdd_join.collect()
+for clave, (producto, precio) in resultado:
+    print(f"ID {clave}: {producto} - ${precio}")
+
+11. cogroup:
+rdd_usuarios = sc.parallelize([
+    (1, "Carlos"),
+    (2, "Ana"),
+    (3, "Luis")
+])
+rdd_edades = sc.parallelize([
+    (1, 30),
+    (2, 25),
+    (4, 40)
+])
+rdd_cogroup = rdd_usuarios.cogroup(rdd_edades)
+resultado = rdd_cogroup.mapValues(lambda x: (list(x[0]), list(x[1]))).filter(lambda x: len(x[1][0]) > 0 and len(x[1][1]) > 0).collect()
+for clave, (nombres, edades) in resultado:
+    print(f"ID {clave}: nombres={nombres}, edades={edades}")
+
+12. coalesce:
+rdd = sc.parallelize([11, 12, 13, 14, 15, 16, 17, 18, 19, 20], numSlices=4)
+print(f"Número de particiones antes de coalesce: {rdd.getNumPartitions()}")
+rdd_reducido = rdd.coalesce(2)
+print(f"Número de particiones después de coalesce: {rdd_reducido.getNumPartitions()}")
+print(f"Rendimiento estimado: {rdd_reducido.count()}")
+print(rdd_reducido.collect())
+
+ACCIONES: 
+13. reduce:
+rdd = sc.parallelize(range(1, 20), 3)
+resultado = rdd.reduce(lambda x, y: x + y)
+print(resultado)
+
+14. collect:
+rdd_c = sc.parallelize(["Paris", "London", "New York", "Tokyo", "Paris", "Berlin"], 2)
+resultado_c = rdd_c.collect()
+print(resultado_c)
+
+
+15. count:
+rdd_a = sc.parallelize(range(1, 10))
+resultado_a = rdd_a.count()
+print(resultado_a)
+
+16. first:
+rdd_c = sc.parallelize(["Gnu", "Cat", "Rat", "Dog"], 2)
+resultado_c_first = rdd_c.first()
+print(resultado_c_first)
+
+17. take:
+rdd_b = sc.parallelize(["dog", "cat", "ape", "salmon", "gnu"], 2)
+resultado_b_take = rdd_b.take(2)
+print(resultado_b_take)
+
+18. saveAsTextFile:
+rdd_a = sc.parallelize(range(1, 1001), 3)
+rdd_filtrado = rdd_a.filter(lambda x: x % 2 == 0)
+output_path_text = '/content/nuevos_datos_texto_validado'
+rdd_filtrado.saveAsTextFile(output_path_text)
+
+19. max, min:
+rdd = sc.parallelize([50, 30, 78, 92, 44, 18, 60])
+
+valor_maximo = rdd.max()
+valor_minimo = rdd.min()
+promedio = rdd.mean()
+print(f"Valor máximo: {valor_maximo}")
+print(f"Valor mínimo: {valor_minimo}")
+print(f"Promedio: {promedio:.2f}")
+
+20. countByKey:
+rdd_values_key = sc.parallelize([("kiwi", 1), ("uva", 1), ("kiwi", 1), 
+                                 ("pera", 1), ("uva", 1), ("kiwi", 1)], 2)
+resultado_countByKey = rdd_values_key.countByKey()
+resultado_filtrado = {k: v for k, v in resultado_countByKey.items() if v > 2}
+print(f"Frutas con más de 2 ocurrencias: {resultado_filtrado}")
+
+21. foreach:
+rdd_c = sc.parallelize(["elefante", "jirafa", "panda", "cebra", "mono", 
+                        "koala", "pereza", "hipopotamo", "flamenco", "canguro"], 3)
+resultado_foreach = rdd_c.map(lambda x: f"{x}s son increíbles").collect()
+with open("resultados.log", "w") as f:
+    for line in resultado_foreach:
+        f.write(f"{line}\n")
+for line in resultado_foreach:
+    print(line)
